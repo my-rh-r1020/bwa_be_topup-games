@@ -1,3 +1,4 @@
-const router = require("express").Router();
+const router = require("express").Router(),
+  { getAllCategory } = require("./controller");
 
-router.get("/");
+router.get("/", getAllCategory);

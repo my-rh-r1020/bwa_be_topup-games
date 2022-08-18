@@ -5,11 +5,10 @@ const express = require("express"),
   cookieParser = require("cookie-parser"),
   logger = require("morgan");
 
-// API Routes
+// API Main Router
 const verV1 = "/api/v1",
+  // Routers App
   categoriesRouter = require("./app/api/v1/categories/router");
-// var indexRouter = require("./routes/index");
-// var usersRouter = require("./routes/users");
 
 // Middlewares
 app.use(logger("dev"));
@@ -18,7 +17,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use("/", indexRouter);
-// app.use("/users", usersRouter);
+app.get("/", (req, res) => {
+  res.json({ message: "WELCOME TO API TOPUP GAMES STORE" });
+});
+
+// Super Admin Middlewares
+app.use(`${verV1}/categories`, categoriesRouter);
 
 module.exports = app;
