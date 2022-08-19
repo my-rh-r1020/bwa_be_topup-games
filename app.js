@@ -20,14 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use("admin-lte", express.static(path.join(__dirname, "/node_modules/admin-lte")));
 
 app.get("/", (req, res) => {
   res.json({ message: "WELCOME TO API - TOPUP GAMES STORE" });
 });
 
 // Super Admin Middlewares
-app.use(`${verV1}`);
-app.use(`${verV1}/categories`, categoriesRouter);
+// app.use(`${verV1}`, categoriesRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);

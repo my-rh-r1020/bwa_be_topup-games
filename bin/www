@@ -4,10 +4,10 @@
  * Module dependencies.
  */
 
-const app = require("../app");
-const debug = require("debug")("bwa-topupstore-server:server");
-const http = require("http");
-const db = require("../app/db");
+const app = require("../app"),
+  debug = require("debug")("bwa-topupstore-server:server");
+const http = require("http"),
+  db = require("../app/db");
 
 /**
  * Get port from environment and store in Express.
