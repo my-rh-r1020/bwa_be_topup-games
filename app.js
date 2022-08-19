@@ -9,7 +9,7 @@ const express = require("express"),
 const verV1 = "/api/v1",
   // Routers App
   // usersRouter = require(`./app${verV1}/users/router`),
-  categoriesRouter = require(`./app${verV1}/categories/router`);
+  categoriesRouter = require(`./app/api/v1/categories/router`);
 
 // Middlewares
 const notFoundMiddleware = require("./app/middlewares/not-found"),
@@ -20,14 +20,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("admin-lte", express.static(path.join(__dirname, "/node_modules/admin-lte")));
 
 app.get("/", (req, res) => {
   res.json({ message: "WELCOME TO API - TOPUP GAMES STORE" });
 });
 
 // Super Admin Middlewares
-// app.use(`${verV1}`, categoriesRouter);
+app.use(`${verV1}/categories`, categoriesRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
