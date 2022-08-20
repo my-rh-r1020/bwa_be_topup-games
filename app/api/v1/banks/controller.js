@@ -5,9 +5,9 @@ const Bank = require("./model"),
 // Get all banks data
 const getAllBanks = async (req, res, next) => {
   try {
-    let condition;
+    // let condition;
 
-    const result = await Bank.find({ condition });
+    const result = await Bank.find();
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -18,11 +18,11 @@ const getAllBanks = async (req, res, next) => {
 // Get one bank data
 const getOneBank = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: bankId } = req.params;
 
-    const result = await Bank.findOne({});
+    const result = await Bank.findOne({ _id: bankId });
 
-    if (!result) throw new CustomAPIError.NotFound(`Bank id is not found`);
+    if (!result) throw new CustomAPIError.NotFound(`Bank id ${bankId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -30,7 +30,7 @@ const getOneBank = async (req, res, next) => {
   }
 };
 
-// Create a bank data
+// Create new bank data
 const createBank = async (req, res, next) => {
   try {
     const {} = req.body;
@@ -44,6 +44,27 @@ const createBank = async (req, res, next) => {
     const result = await Bank.create({});
 
     res.status(StatusCodes.CREATED).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update bank data
+const updateBank = async (req, res, next) => {
+  try {
+    const {} = req.params;
+
+    // Check bank data
+    const check = await Bank.findOne({});
+
+    if (check) throw new CustomAPIError.BadRequest(`Bank name ${name} is already used`);
+
+    // Update bank data
+    const result = await Bank.findOneAndUpdate({});
+
+    if (!result) throw new CustomAPIError.NotFound(`Bank id ${bankId} is not found`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -64,4 +85,4 @@ const deleteBank = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllBanks, getOneBank, createBank, deleteBank };
+module.exports = { getAllBanks, getOneBank, createBank, updateBank, deleteBank };

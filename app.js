@@ -8,8 +8,9 @@ const express = require("express"),
 // API Main Router
 const verV1 = "/api/v1",
   // Routers App
-  // usersRouter = require(`./app${verV1}/users/router`),
-  categoriesRouter = require(`./app/api/v1/categories/router`);
+  urlRouter = "./app/api/v1",
+  categoriesRouter = require(`${urlRouter}/categories/router`),
+  bankRouter = require(`${urlRouter}/banks/router`);
 
 // Middlewares
 const notFoundMiddleware = require("./app/middlewares/not-found"),
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 
 // Super Admin Middlewares
 app.use(`${verV1}/categories`, categoriesRouter);
+app.use(`${verV1}/banks`, bankRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);

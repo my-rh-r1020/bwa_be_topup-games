@@ -22,7 +22,7 @@ const getOneCategory = async (req, res, next) => {
 
     const result = await Category.findOne({ _id: categoryId });
 
-    if (!result) throw new CustomAPIError.NotFound(`Category id is not found`);
+    if (!result) throw new CustomAPIError.NotFound(`Category id ${categoryId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -30,7 +30,7 @@ const getOneCategory = async (req, res, next) => {
   }
 };
 
-// Create a new category
+// Create new category data
 const createCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
@@ -56,7 +56,7 @@ const updateCategory = async (req, res, next) => {
     const { id: categoryId } = req.params,
       { name } = req.body;
 
-    // Check data category
+    // Check category data
     const check = await Category.findOne({ name, _id: { $ne: categoryId } });
 
     if (check) throw new CustomAPIError.BadRequest(`Category name ${name} is already used`);
