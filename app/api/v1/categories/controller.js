@@ -2,7 +2,7 @@ const Category = require("./model"),
   { StatusCodes } = require("http-status-codes"),
   CustomAPIError = require("../../../errors");
 
-// Get All Categories
+// Get All Categories data
 const getAllCategory = async (req, res, next) => {
   try {
     // let condition = { user: req.user.id };
@@ -15,7 +15,7 @@ const getAllCategory = async (req, res, next) => {
   }
 };
 
-// Get one category
+// Get one category data
 const getOneCategory = async (req, res, next) => {
   try {
     const { id: categoryId } = req.params;
@@ -39,7 +39,7 @@ const createCategory = async (req, res, next) => {
     // Check data category
     const check = await Category.findOne({ name });
 
-    if (check) throw new CustomAPIError.BadRequest(`Category name is already used`);
+    if (check) throw new CustomAPIError.BadRequest(`Category name ${name} is already used`);
 
     // Save new category data
     const result = await Category.create({ name });

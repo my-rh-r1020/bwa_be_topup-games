@@ -49,6 +49,17 @@ const createNominal = async (req, res, next) => {
   }
 };
 
+// Update nominal data
+const updateNominal = async (req, res, next) => {
+  try {
+    const {} = req.params;
+
+    const check = await Nominal.findOne({});
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Delete nominal data
 const deleteNominal = async (req, res, next) => {
   try {
