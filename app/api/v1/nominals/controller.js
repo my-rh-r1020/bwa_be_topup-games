@@ -18,8 +18,7 @@ const getOneNominal = async (req, res, next) => {
   try {
     const { id: nominalId } = req.params;
 
-    const result = await Nominal.findOne({});
-
+    const result = await Nominal.findOne({ _id: nominalId });
     if (!result) throw new CustomAPIError.NotFound(`Nominal id ${nominalId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -31,18 +30,14 @@ const getOneNominal = async (req, res, next) => {
 // Create new nominal data
 const createNominal = async (req, res, next) => {
   try {
-    const {} = req.body;
+    const { coinQuantity, coinName, price } = req.body;
 
-    // Check nominal data
-    const check = await Nominal.findOne({});
+    // Check data
+    const check = await Nominal.findOne({ coinName });
+    if (check) throw new CustomAPIError.BadRequest(`Nominal ${coinName} is already used`);
 
-    if (check) throw new CustomAPIError.BadRequest(`Nominal is already used`);
-
-    // Save new nominal data
-    const result = await Nominal.create({});
-
-    if (!result) throw new CustomAPIError.NotFound(`Nominal id ${nominalId} is not found`);
-
+    // Save new data
+    const result = await Nominal.create({ coinQuantity, coinName, price });
     res.status(StatusCodes.CREATED).json({ data: result });
   } catch (err) {
     next(err);
@@ -52,9 +47,18 @@ const createNominal = async (req, res, next) => {
 // Update nominal data
 const updateNominal = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: nominalId } = req.params,
+      { coinQuantity, coinName, price } = req.body;
 
-    const check = await Nominal.findOne({});
+    // Check data
+    const check = await Nominal.findOne({ coinQuantity, coinName, price, _id: { $ne: nominalId } });
+    if (check) throw new CustomAPIError.BadRequest(`Nominal ${coinName} is already used`);
+
+    // Update data
+    const result = await Nominal.findOneAndUpdate({ _id: nominalId }, { coinQuantity, coinName, price }, { new: true.valueOf, runValidators: true });
+    if (!result) throw new CustomAPIError.NotFound(`Nominal id ${nominalId} is not found`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -63,11 +67,10 @@ const updateNominal = async (req, res, next) => {
 // Delete nominal data
 const deleteNominal = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: nominalId } = req.params;
 
-    const result = await Nominal.findOneAndDelete({});
-
-    if (!result) throw new CustomAPIError.NotFound(`Fail to delete nominal id`);
+    const result = await Nominal.findOneAndDelete({ _id: nominalId });
+    if (!result) throw new CustomAPIError.NotFound(`Fail delete nominal id ${nominalId}`);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -75,4 +78,4 @@ const deleteNominal = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllNominals, getOneNominal, createNominal };
+module.exports = { getAllNominals, getOneNominal, createNominal, updateNominal, deleteNominal };
