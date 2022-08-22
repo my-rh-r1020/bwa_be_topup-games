@@ -11,6 +11,7 @@ const verV1 = "/api/v1",
   urlRouter = "./app/api/v1",
   categoriesRouter = require(`${urlRouter}/categories/router`),
   nominalRouter = require(`${urlRouter}/nominals/router`),
+  voucherRouter = require(`${urlRouter}/vouchers/router`),
   bankRouter = require(`${urlRouter}/banks/router`);
 
 // Middlewares
@@ -30,7 +31,8 @@ app.get("/", (req, res) => {
 // Super Admin Middlewares
 app.use(`${verV1}/categories`, categoriesRouter);
 app.use(`${verV1}/nominals`, nominalRouter);
-// app.use(`${verV1}/banks`, bankRouter);
+app.use(`${verV1}/vouchers`, voucherRouter);
+app.use(`${verV1}/banks`, bankRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
