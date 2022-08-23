@@ -12,7 +12,8 @@ const verV1 = "/api/v1",
   categoriesRouter = require(`${urlRouter}/categories/router`),
   nominalRouter = require(`${urlRouter}/nominals/router`),
   voucherRouter = require(`${urlRouter}/vouchers/router`),
-  bankRouter = require(`${urlRouter}/banks/router`);
+  bankRouter = require(`${urlRouter}/banks/router`),
+  paymentRouter = require(`${urlRouter}/payments/router`);
 
 // Middlewares
 const notFoundMiddleware = require("./app/middlewares/not-found"),

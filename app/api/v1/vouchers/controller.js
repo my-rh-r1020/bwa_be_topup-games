@@ -10,6 +10,7 @@ const Voucher = require("./model"),
 const getAllVouchers = async (req, res, next) => {
   try {
     const result = await Voucher.find().populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
@@ -103,6 +104,7 @@ const deleteVoucher = async (req, res, next) => {
     let result = await Voucher.findOneAndDelete({ _id: voucherId });
     if (!result) throw new CustomAPIError.NotFound(`Fail delete voucher id ${voucherId}`);
 
+    // Delete image
     let currentThumbnail = `${config.rootPath}/public/uploads/thumbnail-voucher/${result.thumbnail}`;
     if (fs.existsSync(currentThumbnail)) fs.unlinkSync(currentThumbnail);
 

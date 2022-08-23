@@ -1,5 +1,7 @@
 const Bank = require("./model"),
   { StatusCodes } = require("http-status-codes"),
+  fs = require("fs"),
+  config = require("../../../config"),
   CustomAPIError = require("../../../errors");
 
 // Get all banks data
@@ -31,14 +33,21 @@ const getOneBank = async (req, res, next) => {
 // Create new bank data
 const createBank = async (req, res, next) => {
   try {
-    const {} = req.body;
+    const { namaBank, namaRekening, noRekening } = req.body;
 
     // Check data
-    const check = await Bank.findOne({});
-    if (check) throw new CustomAPIError.BadRequest(`Bank name is already used`);
+    const check = await Bank.findOne({ namaBank });
+    if (check) throw new CustomAPIError.BadRequest(`Bank ${namaBank} is already used`);
 
     // Save new data
-    const result = await Bank.create({});
+    let result;
+
+    if (!req.file) {
+      result = await Bank.create({ namaBank, namaRekening, noRekening });
+    } else {
+      result = await Bank.create({ namaBank, namaRekening, noRekening, imgBank: req.file.filename });
+    }
+
     res.status(StatusCodes.CREATED).json({ data: result });
   } catch (err) {
     next(err);
@@ -48,16 +57,26 @@ const createBank = async (req, res, next) => {
 // Update bank data
 const updateBank = async (req, res, next) => {
   try {
-    const {} = req.params,
-      {} = req.body;
+    const { id: bankId } = req.params,
+      { namaBank, namaRekening, noRekening } = req.body;
 
     // Check data
-    const check = await Bank.findOne({});
-    if (check) throw new CustomAPIError.BadRequest(`Bank name ${name} is already used`);
+    let result = await Bank.findOne({ _id: bankId });
+    if (!result) throw new CustomAPIError.BadRequest(`Bank ${bankId} is not found`);
 
     // Update data
-    const result = await Bank.findOneAndUpdate({});
-    if (!result) throw new CustomAPIError.NotFound(`Bank id ${bankId} is not found`);
+    if (!req.file) {
+      // Update without change image bank
+      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening);
+    } else {
+      // Update with change image bank
+      let currentImgBank = `${config.rootPath}/public/uploads/imgBank/${result.imgBank}`;
+      if (fs.existsSync(currentImgBank)) fs.unlinkSync(currentImgBank);
+
+      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening), (result.imgBank = req.file.filename);
+    }
+
+    await result.save();
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -68,10 +87,14 @@ const updateBank = async (req, res, next) => {
 // Delete bank data
 const deleteBank = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: bankId } = req.params;
 
-    const result = await Bank.findOneAndDelete({});
+    const result = await Bank.findOneAndDelete({ _id: bankId });
     if (!result) throw new CustomAPIError.NotFound(`Fail to delete bank id`);
+
+    // Delete image
+    let currentImgBank = `${config.rootPath}/public/uploads/imgBank/${result.imgBank}`;
+    if (fs.existsSync(currentImgBank)) fs.unlinkSync(currentImgBank);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
