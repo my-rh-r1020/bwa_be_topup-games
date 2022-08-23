@@ -9,7 +9,7 @@ const Voucher = require("./model"),
 // Get all vouchers data
 const getAllVouchers = async (req, res, next) => {
   try {
-    const result = await Voucher.find().populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName price" });
+    const result = await Voucher.find().populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
@@ -21,7 +21,7 @@ const getOneVoucher = async (req, res, next) => {
   try {
     const { id: voucherId } = req.params;
 
-    const result = await Voucher.findOne({ _id: voucherId });
+    const result = await Voucher.findOne({ _id: voucherId }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
     if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -63,16 +63,31 @@ const createVoucher = async (req, res, next) => {
 // Update voucher data
 const updateVoucher = async (req, res, next) => {
   try {
-    const {} = req.params,
-      {} = req.body;
+    const { id: voucherId } = req.params,
+      { gameName, status, category, nominal } = req.body;
 
     // Check data
-    const check = await Voucher.findOne({});
-    if (check) throw new CustomAPIError.BadRequest(`Voucher  is already used`);
+    let result = await Voucher.findOne({ _id: voucherId });
+    const checkCategory = await Category.findOne({ _id: category }),
+      checkNominal = await Nominal.findOne({ _id: nominal });
+
+    if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
+    if (!checkCategory) throw new CustomAPIError.NotFound(`Category id ${category} is not found!`);
+    if (!checkNominal) throw new CustomAPIError.NotFound(`Nominal id ${nominal} is not found!`);
 
     // Update data
-    const result = await Voucher.findOneAndUpdate({});
-    if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
+    if (!req.file) {
+      // Update without change thumbnail voucher
+      (result.gameName = gameName), (result.status = status), (result.category = category), (result.nominal = nominal);
+    } else {
+      // Update with change thumbail voucher
+      let currentThumbnail = `${config.rootPath}/public/uploads/thumbnail-voucher/${result.thumbnail}`;
+      if (fs.existsSync(currentThumbnail)) fs.unlinkSync(currentThumbnail);
+
+      (result.gameName = gameName), (result.status = status), (result.thumbnail = req.file.filename), (result.category = category), (result.nominal = nominal);
+    }
+
+    await result.save();
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -83,10 +98,13 @@ const updateVoucher = async (req, res, next) => {
 // Delete voucher data
 const deleteVoucher = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: voucherId } = req.params;
 
-    const result = await Voucher.findOneAndDelete({});
-    if (!result) throw new CustomAPIError.NotFound(`Fail delete voucher id `);
+    let result = await Voucher.findOneAndDelete({ _id: voucherId });
+    if (!result) throw new CustomAPIError.NotFound(`Fail delete voucher id ${voucherId}`);
+
+    let currentThumbnail = `${config.rootPath}/public/uploads/thumbnail-voucher/${result.thumbnail}`;
+    if (fs.existsSync(currentThumbnail)) fs.unlinkSync(currentThumbnail);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
