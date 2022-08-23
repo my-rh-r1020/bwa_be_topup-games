@@ -1,11 +1,13 @@
 const Payment = require("./model"),
+  Bank = require("../banks/model"),
   { StatusCodes } = require("http-status-codes"),
   CustomAPIError = require("../../../errors");
 
 // Get all payments data
 const getAllPayments = async (req, res, next) => {
   try {
-    const result = await Payment.find();
+    const result = await Payment.find().populate({ path: "banks", select: "_id namaBank noRekening imgBank" });
+
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
@@ -15,9 +17,9 @@ const getAllPayments = async (req, res, next) => {
 // Get one payment data
 const getOnePayment = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: paymentId } = req.params;
 
-    const result = await Payment.findOne({});
+    const result = await Payment.findOne({ _id: paymentId });
     if (!result) throw new CustomAPIError.NotFound(`Payment id is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -29,14 +31,15 @@ const getOnePayment = async (req, res, next) => {
 // Create new payment data
 const createPayment = async (req, res, next) => {
   try {
-    const {} = req.body;
+    const { type, status, banks } = req.body,
+      { id: paymentId } = req.params;
 
     // Check data
-    const checkPayment = await Payment.findOne({});
-    if (checkPayment) throw new CustomAPIError.BadRequest(`Payment is already used`);
+    const checkPayment = await Payment.findOne({ _id: paymentId });
+    if (checkPayment) throw new CustomAPIError.NotFound(`Payment ${paymentId} is not found`);
 
     // Save new data
-    const result = await Payment.create({});
+    const result = await Payment.create({ type, status, banks });
     if (!result) throw new CustomAPIError.NotFound(`Payment id is not found`);
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -48,16 +51,16 @@ const createPayment = async (req, res, next) => {
 // Update payment data
 const updatePayment = async (req, res, next) => {
   try {
-    const {} = req.params,
-      {} = req.body;
+    const { id: paymentId } = req.params,
+      { type, status, banks } = req.body;
 
     // Check data
-    const checkPayment = await Payment.findOne({});
-    if (checkPayment) throw new CustomAPIError.BadRequest(`Payment is already used`);
+    // const checkBank = await Bank.findOne({ _id: banks });
+    // if (checkBank) throw new CustomAPIError.NotFound(`Bank id ${banks} is not found`);
 
     // Update data
-    const result = await Payment.findOneAndUpdate({});
-    if (!result) throw new CustomAPIError.BadRequest(`Payment id is not found`);
+    const result = await Payment.findOneAndUpdate({ _id: paymentId }, { type, status, banks }, { new: true.valueOf, runValidators: true });
+    if (!result) throw new CustomAPIError.BadRequest(`Payment id ${paymentId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -68,10 +71,10 @@ const updatePayment = async (req, res, next) => {
 // Delete payment data
 const deletePayment = async (req, res, next) => {
   try {
-    const {} = req.params;
+    const { id: paymentId } = req.params;
 
-    const result = await Payment.findOneAndDelete({});
-    if (!result) throw new CustomAPIError.NotFound(`Payment id is not found`);
+    const result = await Payment.findOneAndDelete({ _id: paymentId });
+    if (!result) throw new CustomAPIError.NotFound(`Payment id ${paymentId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {

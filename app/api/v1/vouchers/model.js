@@ -7,7 +7,7 @@ const VoucherSchema = new mongoose.Schema(
       require: [true, "Please insert game name"],
     },
     status: {
-      type: String,
+      type: Boolean,
       enum: [true, false],
       default: true,
     },

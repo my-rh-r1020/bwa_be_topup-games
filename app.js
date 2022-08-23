@@ -34,6 +34,7 @@ app.use(`${verV1}/categories`, categoriesRouter);
 app.use(`${verV1}/nominals`, nominalRouter);
 app.use(`${verV1}/vouchers`, voucherRouter);
 app.use(`${verV1}/banks`, bankRouter);
+app.use(`${verV1}/payments`, paymentRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
