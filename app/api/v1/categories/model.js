@@ -2,17 +2,8 @@ const mongoose = require("mongoose");
 
 const CategorySchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Please insert category name"],
-      minlength: 3,
-      maxlength: 50,
-    },
-    // user: {
-    //   type: mongoose.Types.ObjectId,
-    //   ref: "User",
-    //   required: true,
-    // },
+    name: { type: String, required: [true, "Please insert category name"], minlength: 3, maxlength: 50 },
+    // user: {type: mongoose.Types.ObjectId,ref: "User",required: true,},
   },
   { timestamps: true }
 );

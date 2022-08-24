@@ -2,24 +2,10 @@ const mongoose = require("mongoose");
 
 const VoucherSchema = new mongoose.Schema(
   {
-    gameName: {
-      type: String,
-      require: [true, "Please insert game name"],
-    },
-    status: {
-      type: Boolean,
-      enum: [true, false],
-      default: true,
-    },
-    thumbnail: {
-      type: String,
-      required: true,
-    },
-    category: {
-      type: mongoose.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
+    gameName: { type: String, require: [true, "Please insert game name"] },
+    status: { type: Boolean, enum: [true, false], default: true },
+    thumbnail: { type: String, required: true },
+    category: { type: mongoose.Types.ObjectId, ref: "Category", required: true },
     nominal: [
       {
         type: mongoose.Types.ObjectId,
