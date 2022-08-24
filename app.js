@@ -3,12 +3,15 @@ const express = require("express"),
   path = require("path"),
   // App Package
   cookieParser = require("cookie-parser"),
-  logger = require("morgan");
+  logger = require("morgan"),
+  cors = require("cors");
 
 // API Main Router
 const verV1 = "/api/v1",
   // Routers App
   urlRouter = "./app/api/v1",
+  userRouter = require(`${urlRouter}/users/router`),
+  authRouter = require(`${urlRouter}/auth/router`),
   categoriesRouter = require(`${urlRouter}/categories/router`),
   nominalRouter = require(`${urlRouter}/nominals/router`),
   voucherRouter = require(`${urlRouter}/vouchers/router`),
@@ -19,6 +22,7 @@ const verV1 = "/api/v1",
 const notFoundMiddleware = require("./app/middlewares/not-found"),
   handlerError = require("./app/middlewares/handle-error");
 
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,6 +34,8 @@ app.get("/", (req, res) => {
 });
 
 // Super Admin Middlewares
+app.use(`${verV1}`, userRouter);
+app.use(`${verV1}/auth`, authRouter);
 app.use(`${verV1}/categories`, categoriesRouter);
 app.use(`${verV1}/nominals`, nominalRouter);
 app.use(`${verV1}/vouchers`, voucherRouter);

@@ -7,8 +7,8 @@ const Bank = require("./model"),
 // Get all banks data
 const getAllBanks = async (req, res, next) => {
   try {
-    // let condition;
-    const result = await Bank.find();
+    let condition = { user: req.user.id };
+    const result = await Bank.find(condition);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -21,7 +21,7 @@ const getOneBank = async (req, res, next) => {
   try {
     const { id: bankId } = req.params;
 
-    const result = await Bank.findOne({ _id: bankId });
+    const result = await Bank.findOne({ _id: bankId, user: req.user.id });
     if (!result) throw new CustomAPIError.NotFound(`Bank id ${bankId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -33,19 +33,20 @@ const getOneBank = async (req, res, next) => {
 // Create new bank data
 const createBank = async (req, res, next) => {
   try {
-    const { namaBank, namaRekening, noRekening } = req.body;
+    const { namaBank, namaRekening, noRekening } = req.body,
+      user = req.user.id;
 
     // Check data
-    const check = await Bank.findOne({ namaBank });
+    const check = await Bank.findOne({ namaBank, user });
     if (check) throw new CustomAPIError.BadRequest(`Bank ${namaBank} is already used`);
 
     // Save new data
     let result;
 
     if (!req.file) {
-      result = await Bank.create({ namaBank, namaRekening, noRekening });
+      result = await Bank.create({ namaBank, namaRekening, noRekening, user });
     } else {
-      result = await Bank.create({ namaBank, namaRekening, noRekening, imgBank: req.file.filename });
+      result = await Bank.create({ namaBank, namaRekening, noRekening, imgBank: req.file.filename, user });
     }
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -58,22 +59,23 @@ const createBank = async (req, res, next) => {
 const updateBank = async (req, res, next) => {
   try {
     const { id: bankId } = req.params,
-      { namaBank, namaRekening, noRekening } = req.body;
+      { namaBank, namaRekening, noRekening } = req.body,
+      user = req.user.id;
 
     // Check data
-    let result = await Bank.findOne({ _id: bankId });
+    let result = await Bank.findOne({ _id: bankId, user });
     if (!result) throw new CustomAPIError.BadRequest(`Bank ${bankId} is not found`);
 
     // Update data
     if (!req.file) {
       // Update without change image bank
-      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening);
+      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening), (result.user = user);
     } else {
       // Update with change image bank
       let currentImgBank = `${config.rootPath}/public/uploads/imgBank/${result.imgBank}`;
       if (fs.existsSync(currentImgBank)) fs.unlinkSync(currentImgBank);
 
-      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening), (result.imgBank = req.file.filename);
+      (result.namaBank = namaBank), (result.namaRekening = namaRekening), (result.noRekening = noRekening), (result.imgBank = req.file.filename), (result.user = user);
     }
 
     await result.save();
@@ -87,9 +89,10 @@ const updateBank = async (req, res, next) => {
 // Delete bank data
 const deleteBank = async (req, res, next) => {
   try {
-    const { id: bankId } = req.params;
+    const { id: bankId } = req.params,
+      user = req.user.id;
 
-    const result = await Bank.findOneAndDelete({ _id: bankId });
+    const result = await Bank.findOneAndDelete({ _id: bankId, user });
     if (!result) throw new CustomAPIError.NotFound(`Fail to delete bank id`);
 
     // Delete image

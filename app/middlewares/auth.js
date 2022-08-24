@@ -1,5 +1,5 @@
 const CustomAPIError = require("../errors"),
-  {} = require("../utils");
+  { isTokenValid } = require("../utils/jwt");
 
 const authenticateUser = async (req, res, next) => {
   try {
@@ -8,7 +8,7 @@ const authenticateUser = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     // Token Valid
-    if (authHeader && authHeader.startWith("Bearer")) token = authHeader.split(" ")[1];
+    if (authHeader && authHeader.startsWith("Bearer")) token = authHeader.split(" ")[1];
 
     // Token Invalid
     if (!token) throw new CustomAPIError.Unauthenticated("Authentication failed!");
@@ -16,12 +16,7 @@ const authenticateUser = async (req, res, next) => {
     const payload = isTokenValid({ token });
 
     // Attach the user and his permissions
-    req.user = {
-      name: payload.name,
-      id: payload.userId,
-      role: payload.role,
-      email: payload.email,
-    };
+    req.user = { name: payload.name, id: payload.userId, role: payload.role, email: payload.email };
 
     next();
   } catch (err) {

@@ -9,7 +9,8 @@ const Voucher = require("./model"),
 // Get all vouchers data
 const getAllVouchers = async (req, res, next) => {
   try {
-    const result = await Voucher.find().populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+    let condition = { user: req.user.id };
+    const result = await Voucher.find(condition).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -22,7 +23,7 @@ const getOneVoucher = async (req, res, next) => {
   try {
     const { id: voucherId } = req.params;
 
-    const result = await Voucher.findOne({ _id: voucherId }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+    const result = await Voucher.findOne({ _id: voucherId, user: req.user.id }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
     if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -34,11 +35,11 @@ const getOneVoucher = async (req, res, next) => {
 // Create new voucher data
 const createVoucher = async (req, res, next) => {
   try {
-    const { gameName, status, category, nominal } = req.body;
-    // user = req.user.id;
+    const { gameName, status, category, nominal } = req.body,
+      user = req.user.id;
 
     // Check data
-    const checkVoucher = await Voucher.findOne({ gameName }),
+    const checkVoucher = await Voucher.findOne({ gameName, user }),
       checkCategory = await Category.findOne({ _id: category }),
       checkNominal = await Nominal.findOne({ _id: nominal });
 
@@ -50,9 +51,9 @@ const createVoucher = async (req, res, next) => {
     let result;
 
     if (!req.file) {
-      result = await Voucher.create({ gameName, status, category, nominal });
+      result = await Voucher.create({ gameName, status, category, nominal, user });
     } else {
-      result = await Voucher.create({ gameName, status, thumbnail: req.file.filename, category, nominal });
+      result = await Voucher.create({ gameName, status, thumbnail: req.file.filename, category, nominal, user });
     }
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -65,10 +66,11 @@ const createVoucher = async (req, res, next) => {
 const updateVoucher = async (req, res, next) => {
   try {
     const { id: voucherId } = req.params,
-      { gameName, status, category, nominal } = req.body;
+      { gameName, status, category, nominal } = req.body,
+      user = req.user.id;
 
     // Check data
-    let result = await Voucher.findOne({ _id: voucherId });
+    let result = await Voucher.findOne({ _id: voucherId, user });
     const checkCategory = await Category.findOne({ _id: category }),
       checkNominal = await Nominal.findOne({ _id: nominal });
 
@@ -79,13 +81,13 @@ const updateVoucher = async (req, res, next) => {
     // Update data
     if (!req.file) {
       // Update without change thumbnail voucher
-      (result.gameName = gameName), (result.status = status), (result.category = category), (result.nominal = nominal);
+      (result.gameName = gameName), (result.status = status), (result.category = category), (result.nominal = nominal), (result.user = user);
     } else {
       // Update with change thumbail voucher
       let currentThumbnail = `${config.rootPath}/public/uploads/thumbnail-voucher/${result.thumbnail}`;
       if (fs.existsSync(currentThumbnail)) fs.unlinkSync(currentThumbnail);
 
-      (result.gameName = gameName), (result.status = status), (result.thumbnail = req.file.filename), (result.category = category), (result.nominal = nominal);
+      (result.gameName = gameName), (result.status = status), (result.thumbnail = req.file.filename), (result.category = category), (result.nominal = nominal), (result.user = user);
     }
 
     await result.save();
@@ -99,9 +101,10 @@ const updateVoucher = async (req, res, next) => {
 // Delete voucher data
 const deleteVoucher = async (req, res, next) => {
   try {
-    const { id: voucherId } = req.params;
+    const { id: voucherId } = req.params,
+      user = req.user.id;
 
-    let result = await Voucher.findOneAndDelete({ _id: voucherId });
+    let result = await Voucher.findOneAndDelete({ _id: voucherId, user });
     if (!result) throw new CustomAPIError.NotFound(`Fail delete voucher id ${voucherId}`);
 
     // Delete image

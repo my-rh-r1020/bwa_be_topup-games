@@ -5,8 +5,8 @@ const Category = require("./model"),
 // Get All Categories data
 const getAllCategory = async (req, res, next) => {
   try {
-    // let condition = { user: req.user.id };
-    const result = await Category.find();
+    let condition = { user: req.user.id };
+    const result = await Category.find(condition);
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -19,7 +19,7 @@ const getOneCategory = async (req, res, next) => {
   try {
     const { id: categoryId } = req.params;
 
-    const result = await Category.findOne({ _id: categoryId });
+    const result = await Category.findOne({ _id: categoryId, user: req.user.id });
     if (!result) throw new CustomAPIError.NotFound(`Category id ${categoryId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -31,15 +31,15 @@ const getOneCategory = async (req, res, next) => {
 // Create new category data
 const createCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    // user = req.user.id;
+    const { name } = req.body,
+      user = req.user.id;
 
     // Check data
-    const check = await Category.findOne({ name });
+    const check = await Category.findOne({ user, name });
     if (check) throw new CustomAPIError.BadRequest(`Category name ${name} is already used`);
 
     // Save new data
-    const result = await Category.create({ name });
+    const result = await Category.create({ name, user });
     res.status(StatusCodes.CREATED).json({ data: result });
   } catch (err) {
     next(err);
@@ -57,7 +57,7 @@ const updateCategory = async (req, res, next) => {
     if (check) throw new CustomAPIError.BadRequest(`Category name ${name} is already used`);
 
     // Update data
-    const result = await Category.findOneAndUpdate({ _id: categoryId }, { name }, { new: true, runValidators: true });
+    const result = await Category.findOneAndUpdate({ _id: categoryId }, { name, user: req.user.id }, { new: true, runValidators: true });
     if (!result) throw new CustomAPIError.NotFound(`Category id ${categoryId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -69,9 +69,10 @@ const updateCategory = async (req, res, next) => {
 // Delete category data
 const deleteCategory = async (req, res, next) => {
   try {
-    const { id: categoryId } = req.params;
+    const { id: categoryId } = req.params,
+      user = req.user.id;
 
-    const result = await Category.findOneAndDelete({ _id: categoryId });
+    const result = await Category.findOneAndDelete({ _id: categoryId, user });
     if (!result) throw new CustomAPIError.NotFound(`Fail delete category id ${categoryId}`);
 
     res.status(StatusCodes.OK).json({ data: result });

@@ -1,10 +1,11 @@
 const router = require("express").Router(),
-  { getAllPayments, getOnePayment, createPayment, updatePayment, deletePayment } = require("./controller");
+  { getAllPayments, getOnePayment, createPayment, updatePayment, deletePayment } = require("./controller"),
+  { authenticateUser } = require("../../../middlewares/auth");
 
-router.get("/", getAllPayments);
-router.get("/:id", getOnePayment);
-router.post("/", createPayment);
-router.put("/:id", updatePayment);
-router.delete("/:id", deletePayment);
+router.get("/", authenticateUser, getAllPayments);
+router.get("/:id", authenticateUser, getOnePayment);
+router.post("/", authenticateUser, createPayment);
+router.put("/:id", authenticateUser, updatePayment);
+router.delete("/:id", authenticateUser, deletePayment);
 
 module.exports = router;
