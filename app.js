@@ -16,7 +16,8 @@ const verV1 = "/api/v1",
   nominalRouter = require(`${urlRouter}/nominals/router`),
   voucherRouter = require(`${urlRouter}/vouchers/router`),
   bankRouter = require(`${urlRouter}/banks/router`),
-  paymentRouter = require(`${urlRouter}/payments/router`);
+  paymentRouter = require(`${urlRouter}/payments/router`),
+  transactionRouter = require(`${urlRouter}/transactions/router`);
 
 // Middlewares
 const notFoundMiddleware = require("./app/middlewares/not-found"),
@@ -41,6 +42,7 @@ app.use(`${verV1}/nominals`, nominalRouter);
 app.use(`${verV1}/vouchers`, voucherRouter);
 app.use(`${verV1}/banks`, bankRouter);
 app.use(`${verV1}/payments`, paymentRouter);
+app.use(`${verV1}/transactions`, transactionRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
