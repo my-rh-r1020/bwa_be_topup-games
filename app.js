@@ -6,9 +6,8 @@ const express = require("express"),
   logger = require("morgan"),
   cors = require("cors");
 
-// API Main Router
+// Admin Router App
 const verV1 = "/api/v1",
-  // Routers App
   urlRouter = "./app/api/v1",
   userRouter = require(`${urlRouter}/users/router`),
   authRouter = require(`${urlRouter}/auth/router`),
@@ -18,6 +17,11 @@ const verV1 = "/api/v1",
   bankRouter = require(`${urlRouter}/banks/router`),
   paymentRouter = require(`${urlRouter}/payments/router`),
   transactionRouter = require(`${urlRouter}/transactions/router`);
+
+// Player Router App
+const verV1Player = "/api/v1-player",
+  urlRouterPlayer = "./app/api/v1-player",
+  playerRouter = require(`${urlRouterPlayer}/player/router`);
 
 // Middlewares
 const notFoundMiddleware = require("./app/middlewares/not-found"),
@@ -43,6 +47,9 @@ app.use(`${verV1}/vouchers`, voucherRouter);
 app.use(`${verV1}/banks`, bankRouter);
 app.use(`${verV1}/payments`, paymentRouter);
 app.use(`${verV1}/transactions`, transactionRouter);
+
+// Player Middlewares
+app.use(`${verV1Player}/player`, playerRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
