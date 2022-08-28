@@ -1,6 +1,7 @@
 const Player = require("./model"),
   Voucher = require("../../v1/vouchers/model"),
   Payment = require("../../v1/payments/model"),
+  Category = require("../../v1/categories/model"),
   { StatusCodes } = require("http-status-codes"),
   { createJWT, createTokenUser } = require("../../../utils"),
   CustomAPIError = require("../../../errors");
@@ -73,6 +74,15 @@ const detailPage = async (req, res, next) => {
 };
 
 // Category Page
+const getAllCategories = async (req, res, next) => {
+  try {
+    const result = await Category.find();
+
+    res.status(StatusCodes.OK).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Checkout Page
 
@@ -84,4 +94,4 @@ const detailPage = async (req, res, next) => {
 
 // Edit Profile
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, getAllCategories };
