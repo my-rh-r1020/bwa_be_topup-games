@@ -1,5 +1,6 @@
 const Player = require("./model"),
   Voucher = require("../../v1/vouchers/model"),
+  Payment = require("../../v1/payments/model"),
   { StatusCodes } = require("http-status-codes"),
   { createJWT, createTokenUser } = require("../../../utils"),
   CustomAPIError = require("../../../errors");
@@ -57,6 +58,15 @@ const landingPage = async (req, res, next) => {
 // Detail Page
 const detailPage = async (req, res, next) => {
   try {
+    const { id: detailPageId } = req.params;
+
+    const result = await Voucher.findOne({ _id: detailPageId, status: true })
+      .populate({ path: "category", select: "_id name" })
+      .populate({ path: "nominal", select: "_id coinQuantity coinName price" })
+      .populate({ path: "user", select: "_id name phoneNumber" });
+    if (!result) throw new CustomAPIError.NotFound(`Voucher game is not found`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -74,4 +84,4 @@ const detailPage = async (req, res, next) => {
 
 // Edit Profile
 
-module.exports = { signupPlayer, signinPlayer, landingPage };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage };

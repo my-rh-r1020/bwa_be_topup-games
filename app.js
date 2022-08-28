@@ -49,7 +49,7 @@ app.use(`${verV1}/payments`, paymentRouter);
 app.use(`${verV1}/transactions`, transactionRouter);
 
 // Player Middlewares
-app.use(`${verV1Player}/player`, playerRouter);
+app.use(`${verV1Player}`, playerRouter);
 
 // Middleware Use
 app.use(notFoundMiddleware);
