@@ -9,7 +9,7 @@ const PlayerSchema = new mongoose.Schema({
   role: { type: String, default: "user" },
   avatar: { type: String, default: "default.png" },
   fileName: { type: String },
-  phoneNumber: { type: Number, minlength: 9, maxlength: 12 },
+  phoneNumber: { type: Number, minlength: 9, maxlength: 12, default: 0 },
   favorite: { type: mongoose.Types.ObjectId, ref: "Category" },
 });
 

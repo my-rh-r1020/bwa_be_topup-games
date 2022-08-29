@@ -12,6 +12,7 @@ const verV1 = "/api/v1",
   userRouter = require(`${urlRouter}/users/router`),
   authRouter = require(`${urlRouter}/auth/router`),
   categoriesRouter = require(`${urlRouter}/categories/router`),
+  gameRouter = require(`${urlRouter}/games/router`),
   nominalRouter = require(`${urlRouter}/nominals/router`),
   voucherRouter = require(`${urlRouter}/vouchers/router`),
   bankRouter = require(`${urlRouter}/banks/router`),
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
 app.use(`${verV1}`, userRouter);
 app.use(`${verV1}/auth`, authRouter);
 app.use(`${verV1}/categories`, categoriesRouter);
+app.use(`${verV1}/games`, gameRouter);
 app.use(`${verV1}/nominals`, nominalRouter);
 app.use(`${verV1}/vouchers`, voucherRouter);
 app.use(`${verV1}/banks`, bankRouter);

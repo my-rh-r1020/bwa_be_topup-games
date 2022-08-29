@@ -34,9 +34,9 @@ const createNominal = async (req, res, next) => {
     const { coinQuantity, coinName, price } = req.body,
       user = req.user.id;
 
-    // Check data
-    const check = await Nominal.findOne({ coinName, user });
-    if (check) throw new CustomAPIError.BadRequest(`Nominal ${coinName} is already used`);
+    // // Check data
+    // const check = await Nominal.findOne({ coinName, user });
+    // if (check) throw new CustomAPIError.BadRequest(`Nominal ${coinName} is already used`);
 
     // Save new data
     const result = await Nominal.create({ coinQuantity, coinName, price, user });

@@ -1,5 +1,5 @@
 const Player = require("./model"),
-  Voucher = require("../../v1/vouchers/model"),
+  Game = require("../../v1/games/model"),
   Payment = require("../../v1/payments/model"),
   Category = require("../../v1/categories/model"),
   { StatusCodes } = require("http-status-codes"),
@@ -49,7 +49,7 @@ const signinPlayer = async (req, res, next) => {
 // Landing Page
 const landingPage = async (req, res, next) => {
   try {
-    const result = await Voucher.find().populate({ path: "category", select: "_id name" });
+    const result = await Game.find().populate({ path: "category", select: "_id name" });
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
@@ -61,10 +61,7 @@ const detailPage = async (req, res, next) => {
   try {
     const { id: detailPageId } = req.params;
 
-    const result = await Voucher.findOne({ _id: detailPageId, status: true })
-      .populate({ path: "category", select: "_id name" })
-      .populate({ path: "nominal", select: "_id coinQuantity coinName price" })
-      .populate({ path: "user", select: "_id name phoneNumber" });
+    const result = await Game.findOne({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
     if (!result) throw new CustomAPIError.NotFound(`Voucher game is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -73,25 +70,38 @@ const detailPage = async (req, res, next) => {
   }
 };
 
-// Category Page
-const getAllCategories = async (req, res, next) => {
+// Checkout Page
+const checkoutPage = async (req, res, next) => {
   try {
-    const result = await Category.find();
-
-    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
-// Checkout Page
-
 // History Transaksi
+const historyTransaksi = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Detail History Transaksi
+const detailHistoryTransaksi = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Read Profile
 
 // Edit Profile
+const editProfilePage = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, getAllCategories };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage };

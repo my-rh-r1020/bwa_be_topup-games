@@ -64,7 +64,7 @@ const updateBank = async (req, res, next) => {
 
     // Check data
     let result = await Bank.findOne({ _id: bankId, user });
-    if (!result) throw new CustomAPIError.BadRequest(`Bank ${bankId} is not found`);
+    if (!result) throw new CustomAPIError.NotFound(`Bank ${bankId} is not found`);
 
     // Update data
     if (!req.file) {
