@@ -1,5 +1,5 @@
 const Voucher = require("./model"),
-  Category = require("../categories/model"),
+  Game = require("../games/model"),
   Nominal = require("../nominals/model"),
   fs = require("fs"),
   { StatusCodes } = require("http-status-codes"),
@@ -10,7 +10,7 @@ const Voucher = require("./model"),
 const getAllVouchers = async (req, res, next) => {
   try {
     let condition = { user: req.user.id };
-    const result = await Voucher.find(condition).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+    const result = await Voucher.find(condition).populate({ path: "games", select: "_id gameName" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
@@ -23,7 +23,7 @@ const getOneVoucher = async (req, res, next) => {
   try {
     const { id: voucherId } = req.params;
 
-    const result = await Voucher.findOne({ _id: voucherId, user: req.user.id }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+    const result = await Voucher.findOne({ _id: voucherId, user: req.user.id }).populate({ path: "game", select: "_id gameName" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
     if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
@@ -35,26 +35,18 @@ const getOneVoucher = async (req, res, next) => {
 // Create new voucher data
 const createVoucher = async (req, res, next) => {
   try {
-    const { gameName, status, category, nominal } = req.body,
+    const { games, nominal } = req.body,
       user = req.user.id;
 
     // Check data
-    const checkVoucher = await Voucher.findOne({ gameName, user }),
-      checkCategory = await Category.findOne({ _id: category }),
+    const checkGame = await Game.findOne({ _id: games }),
       checkNominal = await Nominal.findOne({ _id: nominal });
 
-    if (checkVoucher) throw new CustomAPIError.BadRequest(`Voucher ${gameName} is already used`);
-    if (!checkCategory) throw new CustomAPIError.NotFound(`Category id ${category} is not found!`);
+    if (!checkGame) throw new CustomAPIError.NotFound(`Category id ${games} is not found!`);
     if (!checkNominal) throw new CustomAPIError.NotFound(`Nominal id ${nominal} is not found!`);
 
     // Save new data
-    let result;
-
-    if (!req.file) {
-      result = await Voucher.create({ gameName, status, category, nominal, user });
-    } else {
-      result = await Voucher.create({ gameName, status, thumbnail: req.file.filename, category, nominal, user });
-    }
+    const result = await Voucher.create({ games, nominal, user });
 
     res.status(StatusCodes.CREATED).json({ data: result });
   } catch (err) {

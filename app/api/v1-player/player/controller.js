@@ -1,5 +1,6 @@
 const Player = require("./model"),
   Game = require("../../v1/games/model"),
+  Voucher = require("../../v1/vouchers/model"),
   Payment = require("../../v1/payments/model"),
   Category = require("../../v1/categories/model"),
   { StatusCodes } = require("http-status-codes"),
@@ -61,8 +62,13 @@ const detailPage = async (req, res, next) => {
   try {
     const { id: detailPageId } = req.params;
 
-    const result = await Game.findOne({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
-    if (!result) throw new CustomAPIError.NotFound(`Voucher game is not found`);
+    const resultGame = await Game.find({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }),
+      resultVoucher = await Voucher.find({ games: detailPageId });
+
+    if (!resultGame) throw new CustomAPIError.NotFound(`Game is not found`);
+    if (!resultVoucher) throw new CustomAPIError.NotFound(`Voucher is not found`);
+
+    const result = { resultGame, resultVoucher };
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {

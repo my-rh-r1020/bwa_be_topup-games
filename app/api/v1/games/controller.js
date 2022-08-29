@@ -72,11 +72,13 @@ const updateGame = async (req, res, next) => {
       (result.gameName = gameName), (result.status = status), (result.category = category), (result.user = user);
     } else {
       // Update with cover game
-      let currentCoverGames = `${config.rootPath}/public/uploads/cover-games/${result.coverGames}`;
-      if (fs.existsSync(currentCoverGames)) fs.unlinkSync(currentCoverGames);
+      let currentCover = `${config.rootPath}/public/uploads/cover-games/${result.coverGames}`;
+      if (fs.existsSync(currentCover)) fs.unlinkSync(currentCover);
 
       (result.gameName = gameName), (result.coverGames = req.file.filename), (result.status = status), (result.category = category), (result.user = user);
     }
+
+    await result.save();
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
