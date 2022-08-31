@@ -2,7 +2,7 @@ const Player = require("./model"),
   Game = require("../../v1/games/model"),
   Voucher = require("../../v1/vouchers/model"),
   Payment = require("../../v1/payments/model"),
-  Category = require("../../v1/categories/model"),
+  Transaction = require("../../v1/transactions/model"),
   { StatusCodes } = require("http-status-codes"),
   { createJWT, createTokenUser } = require("../../../utils"),
   CustomAPIError = require("../../../errors");
@@ -10,9 +10,9 @@ const Player = require("./model"),
 // Signup Player
 const signupPlayer = async (req, res, next) => {
   try {
-    const { fullName, username, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
-    const result = await Player.create({ fullName, username, email, password });
+    const result = await Player.create({ name, username, email, password });
     delete result._doc.password;
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -27,7 +27,7 @@ const signinPlayer = async (req, res, next) => {
     const { username, email, password } = req.body;
 
     // Check empty field
-    if (!username || !email) throw new CustomAPIError.BadRequest(`Please provide username or email`);
+    if (!username) throw new CustomAPIError.BadRequest(`Please provide username or email`);
     if (!password) throw new CustomAPIError.BadRequest(`Please provide your password`);
 
     // Check username
@@ -63,7 +63,7 @@ const detailPage = async (req, res, next) => {
     const { id: detailPageId } = req.params;
 
     const resultGame = await Game.find({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }),
-      resultVoucher = await Voucher.find({ games: detailPageId });
+      resultVoucher = await Voucher.find({ games: detailPageId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
 
     if (!resultGame) throw new CustomAPIError.NotFound(`Game is not found`);
     if (!resultVoucher) throw new CustomAPIError.NotFound(`Voucher is not found`);
@@ -79,6 +79,46 @@ const detailPage = async (req, res, next) => {
 // Checkout Page
 const checkoutPage = async (req, res, next) => {
   try {
+    const { game: gameId, personalPurchase, voucher: voucherId, payment: paymentId } = req.body;
+
+    // Check game id
+    const checkGame = await Game.findOne({ _id: gameId });
+    if (!checkGame) throw new CustomAPIError.NotFound(`Game id ${gameId} is not found`);
+
+    // History game
+    const historyGame = {
+      gameName: checkGame.gameName,
+      coverGames: checkGame.coverGames,
+      category: checkGame.category,
+    };
+
+    // // Check voucher id
+    // const checkVoucher = await Voucher.findOne({ _id: voucherId });
+    // if (!checkVoucher) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
+
+    // // History voucher
+    // const historyVoucher = {
+    //   games: checkVoucher.games,
+    //   nominal: checkVoucher.nominal,
+    // };
+
+    // // Check payment id
+    // const checkPayment = await Payment.findOne({ _id: paymentId });
+    // if (!checkPayment) throw new CustomAPIError.NotFound(`Payment id ${paymentId} is not found`);
+
+    // // History Payment
+    // const historyPayment = {
+    //   type: checkPayment.type,
+    //   banks: checkPayment.banks,
+    // };
+
+    // Save checkout data
+    const result = await Transaction.create({
+      game: gameId,
+      personalPurchase: personalPurchase,
+    });
+
+    res.status(StatusCodes.CREATED).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -110,4 +150,4 @@ const editProfilePage = async (req, res, next) => {
   }
 };
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage };

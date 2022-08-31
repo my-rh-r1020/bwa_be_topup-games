@@ -2,7 +2,7 @@ const mongoose = require("mongoose"),
   bcrypt = require("bcryptjs");
 
 const PlayerSchema = new mongoose.Schema({
-  fullName: { type: String, required: [true, "Please provide full name"], minlength: 3, maxlength: 50 },
+  name: { type: String, required: [true, "Please provide full name"], minlength: 3, maxlength: 50 },
   email: { type: String, required: [true, "Please provide email"] },
   username: { type: String, required: [true, "Please provide username"], minlength: 3, maxlength: 50 },
   password: { type: String, required: [true, "Please provide password"], minlength: [6, "Password must length 6 character"] },
@@ -36,10 +36,10 @@ PlayerSchema.path("email").validate(
 );
 
 // Check name unique
-PlayerSchema.path("fullName").validate(
+PlayerSchema.path("name").validate(
   async function (value) {
     try {
-      const count = await this.model("Player").countDocuments({ fullName: value });
+      const count = await this.model("Player").countDocuments({ name: value });
       return !count;
     } catch (err) {
       throw err;
