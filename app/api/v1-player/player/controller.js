@@ -79,43 +79,38 @@ const detailPage = async (req, res, next) => {
 // Checkout Page
 const checkoutPage = async (req, res, next) => {
   try {
-    const { game: gameId, personalPurchase, voucher: voucherId, payment: paymentId } = req.body;
+    const { personalPurchase, game: gameId, voucher: voucherId, payment: paymentId } = req.body;
 
     // Check game id
     const checkGame = await Game.findOne({ _id: gameId });
     if (!checkGame) throw new CustomAPIError.NotFound(`Game id ${gameId} is not found`);
 
-    // History game
-    const historyGame = {
-      gameName: checkGame.gameName,
-      coverGames: checkGame.coverGames,
-      category: checkGame.category,
+    // Check voucher id
+    const checkVoucher = await Voucher.findOne({ _id: voucherId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
+    if (!checkVoucher) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
+
+    // History voucher
+    const historyVoucher = {
+      games: checkVoucher.games,
+      nominal: checkVoucher.nominal,
     };
 
-    // // Check voucher id
-    // const checkVoucher = await Voucher.findOne({ _id: voucherId });
-    // if (!checkVoucher) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
+    // Check payment id
+    const checkPayment = await Payment.findOne({ _id: paymentId });
+    if (!checkPayment) throw new CustomAPIError.NotFound(`Payment id ${paymentId} is not found`);
 
-    // // History voucher
-    // const historyVoucher = {
-    //   games: checkVoucher.games,
-    //   nominal: checkVoucher.nominal,
-    // };
-
-    // // Check payment id
-    // const checkPayment = await Payment.findOne({ _id: paymentId });
-    // if (!checkPayment) throw new CustomAPIError.NotFound(`Payment id ${paymentId} is not found`);
-
-    // // History Payment
-    // const historyPayment = {
-    //   type: checkPayment.type,
-    //   banks: checkPayment.banks,
-    // };
+    // History Payment
+    const historyPayment = {
+      type: checkPayment.type,
+      banks: checkPayment.banks,
+    };
 
     // Save checkout data
     const result = await Transaction.create({
       game: gameId,
       personalPurchase: personalPurchase,
+      voucher: voucherId,
+      historyVoucher: historyVoucher,
     });
 
     res.status(StatusCodes.CREATED).json({ data: result });

@@ -10,14 +10,13 @@ const TransactionSchema = new mongoose.Schema(
       status: { type: String, enum: ["pending", "success", "failed"], default: "pending" },
     },
     game: { type: mongoose.Types.ObjectId, ref: "Game", required: true },
-    // historyVoucherTopUp: {
-    //   gameName: { type: String, required: [true, "Please provide game name"] },
-    //   category: { type: String, required: [true, "Please provide category"] },
-    //   thumbnail: { type: String, required: true },
-    //   coinName: { type: String, default: [true, "Please insert coin name"] },
-    //   coinQuantity: { type: String, required: [true, "Please insert coin quantity"] },
-    //   price: { type: Number },
-    // },
+    voucher: { type: mongoose.Types.ObjectId, ref: "Voucher" },
+    historyVoucher: {
+      games: { type: mongoose.Types.ObjectId, ref: "Game" },
+      nominal: { type: mongoose.Types.ObjectId, ref: "Nominal" },
+    },
+    payment: { type: mongoose.Types.ObjectId, ref: "Payment" },
+    historyPayment: {},
     // historyPayment: {
     //   name: { type: String, required: [true, "Please provide name"] },
     //   type: { type: String, required: [true, "Please provide payment type"] },
