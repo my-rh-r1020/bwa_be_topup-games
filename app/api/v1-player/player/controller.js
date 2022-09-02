@@ -2,6 +2,7 @@ const Player = require("./model"),
   Game = require("../../v1/games/model"),
   Voucher = require("../../v1/vouchers/model"),
   Payment = require("../../v1/payments/model"),
+  Bank = require("../../v1/banks/model"),
   Transaction = require("../../v1/transactions/model"),
   { StatusCodes } = require("http-status-codes"),
   { createJWT, createTokenUser } = require("../../../utils"),
@@ -79,7 +80,7 @@ const detailPage = async (req, res, next) => {
 // Checkout Page
 const checkoutPage = async (req, res, next) => {
   try {
-    const { personalPurchase, game: gameId, voucher: voucherId, payment: paymentId } = req.body;
+    const { personalPurchase, game: gameId, voucher: voucherId, payment: paymentId, banks: bankId } = req.body;
 
     // Check game id
     const checkGame = await Game.findOne({ _id: gameId });
@@ -96,7 +97,7 @@ const checkoutPage = async (req, res, next) => {
     };
 
     // Check payment id
-    const checkPayment = await Payment.findOne({ _id: paymentId });
+    const checkPayment = await Payment.findOne({ _id: paymentId }).populate({ path: "banks", select: "_id namaBank namaRekening noRekening imgBank" });
     if (!checkPayment) throw new CustomAPIError.NotFound(`Payment id ${paymentId} is not found`);
 
     // History Payment
@@ -105,12 +106,20 @@ const checkoutPage = async (req, res, next) => {
       banks: checkPayment.banks,
     };
 
+    // Check bank id
+    const checkBank = await Bank.findOne({ _id: bankId });
+    if (!checkBank) throw new CustomAPIError.NotFound(`Bank id ${banksId} is not found`);
+
     // Save checkout data
     const result = await Transaction.create({
       game: gameId,
       personalPurchase: personalPurchase,
       voucher: voucherId,
       historyVoucher: historyVoucher,
+      payment: paymentId,
+      historyPayment: historyPayment,
+      banks: bankId,
+      player: req.player.id,
     });
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -120,29 +129,46 @@ const checkoutPage = async (req, res, next) => {
 };
 
 // History Transaksi
-const historyTransaksi = async (req, res, next) => {
+const historyTransactions = async (req, res, next) => {
   try {
+    const result = await Transaction.find({ player: req.player.id });
+    if (!result) throw new CustomAPIError.NotFound(`Transaction data is not found`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
 // Detail History Transaksi
-const detailHistoryTransaksi = async (req, res, next) => {
+const detailHistoryTransaction = async (req, res, next) => {
   try {
+    const { id: transactionId } = req.params,
+      player = req.player.id;
+
+    const result = await Transaction.findOne({ _id: transactionId, player });
+    if (!result) throw new CustomAPIError.NotFound(`Transaction id ${transactionId} is not found`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
 // Read Profile
-
-// Edit Profile
-const editProfilePage = async (req, res, next) => {
+const readProfile = async (req, res, next) => {
   try {
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage };
+// Edit Profile
+const editProfile = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage, historyTransactions, detailHistoryTransaction };

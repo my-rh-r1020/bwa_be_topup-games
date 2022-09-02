@@ -8,4 +8,17 @@ const createTokenUser = (user) => {
   };
 };
 
-module.exports = createTokenUser;
+// Create toke user as Player
+const createTokenPlayer = (player) => {
+  return {
+    name: player.name ? player.name : `${player.firstName} ${player.lastName}`,
+    playerId: player._id,
+    email: player.email,
+    username: player.username,
+    phoneNumber: player.phoneNumber,
+    avatar: player.avatar,
+    role: player.role,
+  };
+};
+
+module.exports = { createTokenUser, createTokenPlayer };

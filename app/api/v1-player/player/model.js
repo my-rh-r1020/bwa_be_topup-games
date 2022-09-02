@@ -6,7 +6,7 @@ const PlayerSchema = new mongoose.Schema({
   email: { type: String, required: [true, "Please provide email"] },
   username: { type: String, required: [true, "Please provide username"], minlength: 3, maxlength: 50 },
   password: { type: String, required: [true, "Please provide password"], minlength: [6, "Password must length 6 character"] },
-  role: { type: String, default: "user" },
+  role: { type: String, default: "player" },
   avatar: { type: String, default: "default.png" },
   fileName: { type: String },
   phoneNumber: { type: Number, minlength: 9, maxlength: 12, default: 0 },
