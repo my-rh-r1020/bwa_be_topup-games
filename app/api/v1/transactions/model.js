@@ -2,13 +2,10 @@ const mongoose = require("mongoose");
 
 const TransactionSchema = new mongoose.Schema(
   {
-    personalPurchase: {
-      name: { type: String, required: [true, "Please provide full name"], minlength: 3, maxlength: 50 },
-      accountPlayer: { type: String, required: [true, "Please provide account name"], minlength: 3, maxlength: 50 },
-      tax: { type: Number, default: 0 },
-      value: { type: Number, default: 0 },
-      status: { type: String, enum: ["pending", "success", "failed"], default: "pending" },
-    },
+    accountPlayer: { type: String, required: [true, "Please provide account name"], minlength: 3, maxlength: 50 },
+    tax: { type: Number, default: 0 },
+    value: { type: Number, default: 0 },
+    status: { type: String, enum: ["pending", "success", "failed"], default: "pending" },
     game: { type: mongoose.Types.ObjectId, ref: "Game", required: true },
     voucher: { type: mongoose.Types.ObjectId, ref: "Voucher" },
     historyVoucher: {

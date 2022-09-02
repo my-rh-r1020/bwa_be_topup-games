@@ -8,7 +8,7 @@ const createTokenUser = (user) => {
   };
 };
 
-// Create toke user as Player
+// Create token user as Player
 const createTokenPlayer = (player) => {
   return {
     name: player.name ? player.name : `${player.firstName} ${player.lastName}`,

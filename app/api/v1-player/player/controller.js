@@ -3,6 +3,7 @@ const Player = require("./model"),
   Voucher = require("../../v1/vouchers/model"),
   Payment = require("../../v1/payments/model"),
   Bank = require("../../v1/banks/model"),
+  Category = require("../../v1/categories/model"),
   Transaction = require("../../v1/transactions/model"),
   { StatusCodes } = require("http-status-codes"),
   { createJWT, createTokenUser } = require("../../../utils"),
@@ -80,7 +81,8 @@ const detailPage = async (req, res, next) => {
 // Checkout Page
 const checkoutPage = async (req, res, next) => {
   try {
-    const { personalPurchase, game: gameId, voucher: voucherId, payment: paymentId, banks: bankId } = req.body;
+    const { accountPlayer, tax, value, game: gameId, voucher: voucherId, payment: paymentId, banks: bankId } = req.body,
+      player = req.player.id;
 
     // Check game id
     const checkGame = await Game.findOne({ _id: gameId });
@@ -112,14 +114,17 @@ const checkoutPage = async (req, res, next) => {
 
     // Save checkout data
     const result = await Transaction.create({
+      accountPlayer: accountPlayer,
+      tax: tax,
+      value: value,
+      // personalPurchase: personalPurchase,
       game: gameId,
-      personalPurchase: personalPurchase,
       voucher: voucherId,
       historyVoucher: historyVoucher,
       payment: paymentId,
       historyPayment: historyPayment,
       banks: bankId,
-      player: req.player.id,
+      player: player,
     });
 
     res.status(StatusCodes.CREATED).json({ data: result });
@@ -131,10 +136,24 @@ const checkoutPage = async (req, res, next) => {
 // History Transaksi
 const historyTransactions = async (req, res, next) => {
   try {
-    const result = await Transaction.find({ player: req.player.id });
+    const { status } = req.query,
+      players = req.player.id;
+    let condition = {};
+
+    // Filter by status
+    if (status) condition = { ...condition, status: { $regex: status, $options: "i" } };
+
+    // Filter by player account
+    if (players) condition = { ...condition, player: players };
+
+    // Search data
+    const result = await Transaction.find(condition);
     if (!result) throw new CustomAPIError.NotFound(`Transaction data is not found`);
 
-    res.status(StatusCodes.OK).json({ data: result });
+    // Count data
+    const count = await Transaction.countDocuments(condition);
+
+    res.status(StatusCodes.OK).json({ data: result, total: count });
   } catch (err) {
     next(err);
   }
@@ -150,6 +169,32 @@ const detailHistoryTransaction = async (req, res, next) => {
     if (!result) throw new CustomAPIError.NotFound(`Transaction id ${transactionId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Dashboard
+const dashboard = async (req, res, next) => {
+  try {
+    const player = req.player.id;
+
+    // Get transactions data
+    const count = await Transaction.aggregate([{ $match: { player: player } }, { $group: { _id: `$game`, value: { $sum: `$value` } } }]);
+
+    // Get categories data
+    const resultCategory = await Category.find();
+
+    resultCategory.forEach((e) => {
+      count.forEach((data) => {
+        if (data._id.toString() === e._id.toString()) data.name = e.name;
+      });
+    });
+
+    // Get history transactions
+    const history = await Transaction.find({ player }).populate({ path: "game" }).sort({ updateAt: -1 });
+
+    res.status(StatusCodes.OK).json({ data: history, total: count });
   } catch (err) {
     next(err);
   }
@@ -171,4 +216,4 @@ const editProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage, historyTransactions, detailHistoryTransaction };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage, historyTransactions, detailHistoryTransaction, dashboard };
