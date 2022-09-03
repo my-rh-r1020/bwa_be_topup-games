@@ -6,8 +6,9 @@ const Player = require("./model"),
   Category = require("../../v1/categories/model"),
   Transaction = require("../../v1/transactions/model"),
   { StatusCodes } = require("http-status-codes"),
-  { createJWT, createTokenUser } = require("../../../utils"),
-  CustomAPIError = require("../../../errors");
+  CustomAPIError = require("../../../errors"),
+  fs = require("fs"),
+  config = require("../../../config");
 
 // Signup Player
 const signupPlayer = async (req, res, next) => {
@@ -201,8 +202,12 @@ const dashboard = async (req, res, next) => {
 };
 
 // Read Profile
-const readProfile = async (req, res, next) => {
+const profilePlayer = async (req, res, next) => {
   try {
+    const result = await Player.findOne({ player: req.player.id }).select("_id name email username password avatar phoneNumber");
+    if (!result) throw new CustomAPIError.NotFound(`Unknown Player`);
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -211,9 +216,32 @@ const readProfile = async (req, res, next) => {
 // Edit Profile
 const editProfile = async (req, res, next) => {
   try {
+    const { _id: playerId } = req.params,
+      { name, email, password, phoneNumber } = req.body;
+
+    const result = await Player.findOne({ _id: playerId });
+    if (!result) throw new CustomAPIError.NotFound(`Unknown Player`);
+
+    console.log(result);
+
+    // Update data
+    // if (!req.file) {
+    //   // Update without change avatar
+    //   (result.name = name), (result.email = email), (result.password = password), (result.phoneNumber = phoneNumber);
+    // } else {
+    //   // Update with change avatar
+    //   let currentAvatar = `${config.rootPath}/public/uploads/avatar/${result.avatar}`;
+    //   if (fs.existsSync(currentAvatar)) fs.unlinkSync(currentAvatar);
+
+    //   (result.name = name), (result.email = email), (result.password = password), (result.avatar = req.file.filename), (result.phoneNumber = phoneNumber);
+    // }
+
+    // await result.save();
+
+    res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage, historyTransactions, detailHistoryTransaction, dashboard };
+module.exports = { signupPlayer, signinPlayer, landingPage, detailPage, checkoutPage, historyTransactions, detailHistoryTransaction, dashboard, profilePlayer, editProfile };

@@ -8,7 +8,6 @@ const PlayerSchema = new mongoose.Schema({
   password: { type: String, required: [true, "Please provide password"], minlength: [6, "Password must length 6 character"] },
   role: { type: String, default: "player" },
   avatar: { type: String, default: "default.png" },
-  fileName: { type: String },
   phoneNumber: { type: Number, minlength: 9, maxlength: 12, default: 0 },
   favorite: { type: mongoose.Types.ObjectId, ref: "Category" },
 });
