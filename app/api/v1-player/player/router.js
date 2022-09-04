@@ -11,7 +11,11 @@ router.post("/player/checkout", authenticatePlayer, checkoutPage);
 router.get("/player/transactions", authenticatePlayer, historyTransactions);
 router.get("/player/transactions/detail/:id", authenticatePlayer, detailHistoryTransaction);
 router.get("/player/dashboard", authenticatePlayer, dashboard);
-router.get("/player/profile/:id", authenticatePlayer, profilePlayer);
-router.put("/player/profile/edit/:id", authenticatePlayer, upload.single("avatar"), editProfile);
+// V1
+// router.get("/player/profile/:id", authenticatePlayer, profilePlayer);
+// router.put("/player/profile/edit/:id", authenticatePlayer, upload.single("avatar"), editProfile);
+// V2
+router.get("/player/profile", authenticatePlayer, profilePlayer);
+router.put("/player/profile/edit", authenticatePlayer, upload.single("avatar"), editProfile);
 
 module.exports = router;

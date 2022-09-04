@@ -216,10 +216,18 @@ const profilePlayer = async (req, res, next) => {
 // Edit Profile
 const editProfile = async (req, res, next) => {
   try {
-    const { id: playerId } = req.params,
-      { name, email, password, phoneNumber } = req.body;
+    // V1
+    // const { id: playerId } = req.params,
+    //   { name, email, password, phoneNumber } = req.body;
 
-    const result = await Player.findOne({ _id: playerId });
+    // const result = await Player.findOne({ _id: playerId });
+    // if (!result) throw new CustomAPIError.NotFound(`Unknown Player`);
+
+    // V2
+    const { name, email, password, phoneNumber } = req.body,
+      playerId = req.player.id;
+
+    const result = await Player.findOne({ playerId });
     if (!result) throw new CustomAPIError.NotFound(`Unknown Player`);
 
     // Update data
