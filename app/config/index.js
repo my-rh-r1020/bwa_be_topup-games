@@ -4,6 +4,6 @@ const dotenv = require("dotenv").config(),
 module.exports = {
   rootPath: path.resolve(__dirname, "../../"),
   serviceName: process.env.SERVICES_NAME,
-  urlDb: process.env.MONGODB_URL_DEV,
+  urlDb: process.env.MODE === "PRO" ? process.env.MONGODB_URL_PRO : process.env.MONGODB_URL_DEV,
   jwtSecret: process.env.JWT_SECRET,
 };
