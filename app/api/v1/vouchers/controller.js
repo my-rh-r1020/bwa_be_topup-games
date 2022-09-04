@@ -23,7 +23,7 @@ const getOneVoucher = async (req, res, next) => {
   try {
     const { id: voucherId } = req.params;
 
-    const result = await Voucher.findOne({ _id: voucherId, user: req.user.id }).populate({ path: "game", select: "_id gameName" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
+    const result = await Voucher.findOne({ _id: voucherId, user: req.user.id }).populate({ path: "games", select: "_id gameName" }).populate({ path: "nominal", select: "_id coinName coinQuantity price" });
     if (!result) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
 
     res.status(StatusCodes.OK).json({ data: result });
