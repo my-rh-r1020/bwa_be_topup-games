@@ -66,12 +66,14 @@ const detailPage = async (req, res, next) => {
     const { id: detailPageId } = req.params;
 
     const resultGame = await Game.find({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }),
-      resultVoucher = await Voucher.find({ games: detailPageId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
+      resultVoucher = await Voucher.find({ games: detailPageId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" }),
+      resultPayment = await Payment.find().populate({ path: "banks", select: "_id namaBank imgBank" });
 
     if (!resultGame) throw new CustomAPIError.NotFound(`Game is not found`);
     if (!resultVoucher) throw new CustomAPIError.NotFound(`Voucher is not found`);
+    if (!resultPayment) throw new CustomAPIError.NotFound(`Payment is not found`);
 
-    const result = { resultGame, resultVoucher };
+    const result = { resultGame, resultVoucher, resultPayment };
 
     res.status(StatusCodes.OK).json({ data: result });
   } catch (err) {
