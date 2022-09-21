@@ -8,7 +8,8 @@ const Player = require("./model"),
   { StatusCodes } = require("http-status-codes"),
   CustomAPIError = require("../../../errors"),
   fs = require("fs"),
-  config = require("../../../config");
+  config = require("../../../config"),
+  { createTokenPlayer, createJWT } = require("../../../utils");
 
 // Signup Player
 const signupPlayer = async (req, res, next) => {
@@ -42,7 +43,7 @@ const signinPlayer = async (req, res, next) => {
     if (!isPassCorrect) throw new CustomAPIError.NotFound(`Password is invalid`);
 
     // Create Token
-    const token = createJWT({ payload: createTokenUser(result) });
+    const token = createJWT({ payload: createTokenPlayer(result) });
 
     res.status(StatusCodes.OK).json({ data: { token } });
   } catch (err) {
