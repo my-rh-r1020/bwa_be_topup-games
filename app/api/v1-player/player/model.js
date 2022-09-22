@@ -25,43 +25,43 @@ PlayerSchema.path("email").validate(
 );
 
 // Check email unique
-// PlayerSchema.path("email").validate(
-//   async function (value) {
-//     try {
-//       const count = await this.model("Player").countDocuments({ email: value });
-//       return !count;
-//     } catch (err) {
-//       throw err;
-//     }
-//   },
-//   (attr) => `${attr.value} sudah terdaftar`
-// );
+PlayerSchema.path("email").validate(
+  async function (value) {
+    try {
+      const count = await this.model("Player").countDocuments({ email: value });
+      return !count;
+    } catch (err) {
+      throw err;
+    }
+  },
+  (attr) => `Email ${attr.value} already registered`
+);
 
 // Check name unique
-// PlayerSchema.path("name").validate(
-//   async function (value) {
-//     try {
-//       const count = await this.model("Player").countDocuments({ name: value });
-//       return !count;
-//     } catch (err) {
-//       throw err;
-//     }
-//   },
-//   (attr) => `${attr.value} sudah digunakan`
-// );
+PlayerSchema.path("name").validate(
+  async function (value) {
+    try {
+      const count = await this.model("Player").countDocuments({ name: value });
+      return !count;
+    } catch (err) {
+      throw err;
+    }
+  },
+  (attr) => `Name ${attr.value} already used`
+);
 
 // Check username unique
-// PlayerSchema.path("username").validate(
-//   async function (value) {
-//     try {
-//       const count = await this.model("Player").countDocuments({ username: value });
-//       return !count;
-//     } catch (err) {
-//       next(err);
-//     }
-//   },
-//   (attr) => `${attr.value} sudah digunakan`
-// );
+PlayerSchema.path("username").validate(
+  async function (value) {
+    try {
+      const count = await this.model("Player").countDocuments({ username: value });
+      return !count;
+    } catch (err) {
+      next(err);
+    }
+  },
+  (attr) => `Username ${attr.value} already used`
+);
 
 // Hash Password
 PlayerSchema.pre("save", async function () {
