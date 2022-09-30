@@ -10,8 +10,8 @@ const TransactionSchema = new mongoose.Schema(
     voucher: { type: mongoose.Types.ObjectId, ref: "Voucher" },
     historyVoucher: {
       games: { type: mongoose.Types.ObjectId, ref: "Game" },
-      coinQuantity: { type: String, required: [true, "Please coin quantity"] },
-      coinName: { type: String, required: [true, "Please coin name"] },
+      coinQuantity: { type: String, required: [true, "Please insert coin quantity"] },
+      coinName: { type: String, required: [true, "Please insert coin name"] },
       price: { type: Number, default: 0 },
       // nominal: { type: mongoose.Types.ObjectId, ref: "Nominal" },
     },

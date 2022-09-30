@@ -93,10 +93,21 @@ const checkoutPage = async (req, res, next) => {
     if (!checkGame) throw new CustomAPIError.NotFound(`Game id ${gameId} is not found`);
 
     // Check voucher id
-    const checkVoucher = await Voucher.findOne({ _id: voucherId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
+    // V1
+    // const checkVoucher = await Voucher.findOne({ _id: voucherId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" });
+
+    // V2
+    const checkVoucher = await Voucher.findOne({ _id: voucherId });
     if (!checkVoucher) throw new CustomAPIError.NotFound(`Voucher id ${voucherId} is not found`);
 
     // History voucher
+    // V1
+    // const historyVoucher = {
+    //   games: checkVoucher.games,
+    //   nominal: checkVoucher.nominal,
+    // };
+
+    // V2
     const historyVoucher = {
       games: checkVoucher.games,
       coinQuantity: checkVoucher.coinQuantity,
