@@ -18,9 +18,7 @@ const TransactionSchema = new mongoose.Schema(
     payment: { type: mongoose.Types.ObjectId, ref: "Payment" },
     historyPayment: {
       type: { type: String, required: [true, "Please provide type"] },
-      namaBank: { type: String, required: [true, "Please provide bank name"] },
-      namaRekening: { type: String, required: [true, "Please provide account bank name"] },
-      noRekening: { type: String, required: [true, "Please provide bank account"] },
+      banks: { type: mongoose.Types.ObjectId, ref: "Bank" },
     },
     banks: { type: mongoose.Types.ObjectId, ref: "Bank" },
     player: { type: mongoose.Types.ObjectId, ref: "Player" },

@@ -67,7 +67,9 @@ const detailPage = async (req, res, next) => {
     const { id: detailPageId } = req.params;
 
     const resultGame = await Game.find({ _id: detailPageId, status: true }).populate({ path: "category", select: "_id name" }),
-      resultVoucher = await Voucher.find({ games: detailPageId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" }),
+      resultVoucher = await Voucher.find({ games: detailPageId }),
+      // V1
+      // resultVoucher = await Voucher.find({ games: detailPageId }).populate({ path: "nominal", select: "_id coinQuantity coinName price" }),
       resultPayment = await Payment.find().populate({ path: "banks", select: "_id namaBank namaRekening noRekening imgBank" });
 
     if (!resultGame) throw new CustomAPIError.NotFound(`Game is not found`);
@@ -122,9 +124,7 @@ const checkoutPage = async (req, res, next) => {
     // History Payment
     const historyPayment = {
       type: checkPayment.type,
-      namaBank: checkPayment.namaBank,
-      namaRekening: checkPayment.namaRekening,
-      noRekening: checkPayment.noRekening,
+      banks: checkPayment.banks,
     };
 
     // Check bank id
