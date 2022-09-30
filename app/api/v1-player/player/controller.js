@@ -99,7 +99,9 @@ const checkoutPage = async (req, res, next) => {
     // History voucher
     const historyVoucher = {
       games: checkVoucher.games,
-      nominal: checkVoucher.nominal,
+      coinQuantity: checkVoucher.coinQuantity,
+      coinName: checkVoucher.coinName,
+      price: checkVoucher.price,
     };
 
     // Check payment id
@@ -109,12 +111,14 @@ const checkoutPage = async (req, res, next) => {
     // History Payment
     const historyPayment = {
       type: checkPayment.type,
-      banks: checkPayment.banks,
+      namaBank: checkPayment.namaBank,
+      namaRekening: checkPayment.namaRekening,
+      noRekening: checkPayment.noRekening,
     };
 
     // Check bank id
     const checkBank = await Bank.findOne({ _id: bankId });
-    if (!checkBank) throw new CustomAPIError.NotFound(`Bank id ${banksId} is not found`);
+    if (!checkBank) throw new CustomAPIError.NotFound(`Bank id ${bankId} is not found`);
 
     // Save checkout data
     const result = await Transaction.create({
